@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+	<bean id="switchSynchronizer" class="com.fso.zerohelp.zerott.quartz.impl.SwitchSynchronizerImpl">
+		<property name="switchDAO"><ref bean="switchDAO"/></property><!-- 同步数据源 -->
+		<property name="localOnly" value="false"></property><!-- 是否仅仅从本地配置文件加载配置 -->
+		<property name="cache"><ref bean="switchCache"/></property>
+		<property name="repeatInterval" value="1" /><!-- 向master同步周期，单位为秒 -->
+		<property name="timeout" value="10000" /><!-- 同步超时时间 -->
+		<property name="warningInterval" value="60000" /><!-- 报警间隔时间，单位为秒 -->
+		<property name="persistDir" value="/tmp/ttcontrol"/><!-- 时间程序开关配置存储目录 -->
+		<property name="backup" value="3"/><!-- 时间程序开关配置历史配置保留个数 -->
+	</bean>
+	<bean id="switchCache" class="com.fso.zerohelp.zerott.quartz.impl.SwitchCache" />
+</beans>

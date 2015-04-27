@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    <sqlMap namespace="SmsConfigControl" >
+    	<resultMap id="baseResultMap"  class="com.fso.zerohelp.zerott.quartz.info.SmsSend">
+    		<result column="ID" property="id" jdbcType="VARCHAR"/>
+    		<result column="CONFIGID" property="configid" jdbcType="INT"/>
+    		<result column="GROUPS" property="groups" jdbcType="VARCHAR"/>
+    		<result column="CATEGORY" property="category" jdbcType="VARCHAR"/>
+    		<result column="CONTENT" property="content" jdbcType="VARCHAR"/>
+    		<result column="SENDCOUNT" property="sendcount" jdbcType="INT" nullValue="0"/>
+    		<result column="MAXCOUNT" property="maxcount" jdbcType="INT" nullValue="0"/>
+    		<result column="LASTSENDTIME" property="lastsendtime" jdbcType="VARCHAR"/>
+    		<result column="ADMINNAME" property="adminname" jdbcType="VARCHAR"/>
+    		<result column="PHONENUMBER" property="phonenumber" jdbcType="VARCHAR"/>
+    		<result column="CREATETIME" property="createtime" jdbcType="VARCHAR"/>
+    		<result column="MODIFYTIME" property="modifytime" jdbcType="VARCHAR"/>
+    	</resultMap>
+    	<select id="findByCategory" resultMap="baseResultMap" parameterClass="java.lang.String">
+    		select ID,CONFIGID,GROUPS,CATEGORY,CONTENT,ADMINNAME,PHONENUMBER,SENDCOUNT,MAXCOUNT,LASTSENDTIME,CREATETIME,MODIFYTIME from apollo_smssend where CATEGORY=#category#
+    	</select>
+    	<select id="findByConfigId" resultClass="com.fso.zerohelp.zerott.quartz.info.SmsConfig" parameterClass="java.lang.Integer">
+    		select * from apollo_smsconfig where ID=#id#
+    	</select>
+    	<update id="update" parameterClass="com.fso.zerohelp.zerott.quartz.info.SmsSend">
+    		update apollo_smssend set SENDCOUNT=#sendcount#,MAXCOUNT=#maxcount#,LASTSENDTIME=#lastsendtime# where ID=#id#
+    	</update>
+    </sqlMap>

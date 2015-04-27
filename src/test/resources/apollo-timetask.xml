@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byType">
+	<!-- JMX configurations -->
+	<!-- bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/ -->
+	<!-- <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="rmi:name=ttcontrol" value-ref="ttcontrolMBean" />
+			</map>
+		</property>
+	</bean>
+	<bean id="ttcontrolMBean" class="com.fso.zerohelp.zerott.quartz.mbean.ITTControlMBean"></bean>
+
+
+	<bean id="jmxRegistry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+   		<property name="port" value="1099"/>
+  	</bean>
+
+	<bean id="serverConnector"
+		class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+		<property name="daemon" value="true"/>
+		<property name="threaded" value="true"/>
+		<property name="serviceUrl"
+			value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/ttcontrol" />
+	</bean> -->
+
+	<!-- bean id="clientJMXConnector"
+		class="org.springframework.jmx.support.MBeanServerConnectionFactoryBean">
+		<property name="serviceUrl"
+			value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/ttcontrol" />
+	</bean>
+	<bean id="ttcontrolJMXProxy" class="org.springframework.jmx.access.MBeanProxyFactoryBean">
+		<property name="proxyInterface" value="com.fso.zerohelp.zerott.quartz.mbean.ITTControl" />
+		<property name="server" ref="clientJMXConnector"/>
+	</bean -->
+
+
+	<!--
+		该时间程序不断以repeatInterval为周期向master同步时间程序配置
+		1. 如果内部时间戳状态为0，则向master同步最新的时间戳和所有的时间程序配置
+		2. 如果内部时间戳状态不为0，则向master提交该时间戳以请求所有在此时间戳后被更新的配置项，
+		        如果有则根据反馈更新本地配置，并永久缓存之
+		3. 如果master不可连接，则在发出旺旺报警；并使用本地缓存的配置工作；
+	 -->
+	<bean id="quartzTimetaskSynchronizer" class="com.fso.zerohelp.zerott.quartz.impl.TimetaskSynchronizerImpl">
+		<property name="timetaskDAO"><ref bean="timetaskDAO"/></property><!-- 同步数据源 -->
+		<property name="localOnly" value="false"></property><!-- 是否仅仅从本地配置文件加载配置 -->
+		<property name="repeatInterval" value="5" /><!-- 向master同步周期，单位为秒 -->
+		<property name="timeout" value="10000" /><!-- 同步超时时间 -->
+		<property name="warningInterval" value="60000" /><!-- 报警间隔时间，单位为秒 -->
+		<property name="persistDir" value="/tmp/ttcontrol/"/><!-- 时间程序开关配置存储目录 -->
+		<property name="backup" value="3"/><!-- 时间程序开关配置历史配置保留个数 -->
+		<property name="schedulerList">
+			<list>
+				<ref bean="mainScheduler"/>
+				<!-- ref bean="otherScheduler"/-->
+			</list>
+		</property><!-- 报警间隔时间，单位为秒 -->
+	</bean>
+
+	<!-- 测试用的bean对象 -->
+	<bean id="helloWorldManager" class="com.fso.zerohelp.zerott.quartz.demo.HelloWorldManager"/>
+
+	<!-- 北京福彩双色球相关时间程序  -->
+	<bean id="BJFC_TIMETASK" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob" abstract="true">
+		<property name="arguments">
+			<list>
+				<value>1</value>
+				<value>1</value>
+			</list>
+		</property>
+	</bean> 
+	<!-- 北京福彩双色球预定时间程序  -->
+	<bean id="SSQ_BJFC_BookOrder" parent="BJFC_TIMETASK">
+		<property name="jobName" value="SSQ_BJFC_BookOrder"/>
+		<property name="targetObject"><ref bean="helloWorldManager"/></property>
+		<property name="targetMethod"><value>saySsqBook</value></property>
+	</bean>
+	<!-- <bean id="SSQ_BJFC_Award" parent="BJFC_TIMETASK">
+		<property name="jobName" value="SSQ_BJFC_Award"/>
+		<property name="targetObject"><ref bean="helloWorldManager"/></property>
+		<property name="targetMethod"><value>saySsqAward</value></property>
+	</bean> -->
+	<!-- 不带参数的时间程序，比如monitor -->
+<!-- 	<bean id="Hello_timetask" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob">
+		<property name="jobName" value="Hello_timetask"/>
+		<property name="targetObject"><ref bean="helloWorldManager"/></property>
+		<property name="targetMethod"><value>sayHello</value></property>
+	</bean>
+	<bean id="InterruptableJobDemo" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob">
+		<property name="jobName" value="InterruptableJob"/>
+		<property name="targetObject"><ref bean="helloWorldManager"/></property>
+		<property name="targetMethod"><value>interruptableJob</value></property>
+	</bean>
+	<bean id="SingletonJobDemo" class="com.fso.zerohelp.zerott.quartz.impl.SingletonJob">
+		<property name="jobName" value="SingletonJob"/>
+		<property name="targetObject"><ref bean="helloWorldManager"/></property>
+		<property name="targetMethod"><value>singletonJob</value></property>
+		<property name="runOnDbError" value="true"/>
+	</bean> -->
+
+
+	<!-- bean id="JobGroupDemo" class="com.fso.zerohelp.zerott.quartz.impl.JobGroup">
+		<property name="jobName" value="testGroup"/>
+		<property name="jobs">
+			<list>
+				<value><ref local="sleepTest0"/></value>
+				<value><ref local="sleepTest1"/></value>
+				<value><ref local="sleepTest2"/></value>
+			</list>
+		</property>
+	</bean-->
+<!-- 	<bean id="sleepTest0" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob"><property name="jobName" value="sleep0"/><property name="arguments"><list><value>0</value></list></property><property name="targetObject"><ref bean="helloWorldManager"/></property><property name="targetMethod"><value>sleep10</value></property></bean>
+	<bean id="sleepTest1" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob"><property name="jobName" value="sleep1"/><property name="arguments"><list><value>1</value></list></property><property name="targetObject"><ref bean="helloWorldManager"/></property><property name="targetMethod"><value>sleep10</value></property></bean>
+	<bean id="sleepTest2" class="com.fso.zerohelp.zerott.quartz.impl.MethodInvokingJob"><property name="jobName" value="sleep2"/><property name="arguments"><list><value>2</value></list></property><property name="targetObject"><ref bean="helloWorldManager"/></property><property name="targetMethod"><value>sleep10</value></property></bean>
+ -->
+	<!-- 定义Scheduler -->
+	<bean id="mainScheduler" class="com.fso.zerohelp.zerott.quartz.impl.SchedulerImpl">
+		<property name="jobDetails">
+			<list>
+				<ref local="SSQ_BJFC_BookOrder" />
+				<!-- ref local="Hello_timetask" />
+				<ref local="SingletonJobDemo" /-->
+			</list>
+		</property>
+		<property name="autoStartup" value="true" />
+		<property name="threadCount" value="100"></property>
+		<property name="schedulerName" value="mainScheduler" />
+		<property name="threadPoolType" value="1" /><!-- 0:独立线程池 1:共享线程池 2:使用springExecutorBean配置的线程池 -->
+		<property name="taskExecutor" ref="threadPoolTaskExecutor" />
+	</bean>
+	<!-- ThreadPool配置范例 -->
+	<bean id="threadPoolTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <!-- 核心线程数，默认为1 -->
+	    <property name="corePoolSize" value="2" />
+	    <!-- 最大线程数，默认为Integer.MAX_VALUE -->
+	    <property name="maxPoolSize" value="10" />
+	    <!-- 队列最大长度，一般需要设置值>=notifyScheduledMainExecutor.maxNum；默认为Integer.MAX_VALUE -->
+	    <property name="queueCapacity" value="1000" />
+	    <!-- 线程池维护线程所允许的空闲时间，默认为60s -->
+	    <property name="keepAliveSeconds" value="300" />
+	    <!-- 线程池对拒绝任务（无线程可用）的处理策略，目前只支持AbortPolicy、CallerRunsPolicy；默认为后者 -->
+	    <property name="rejectedExecutionHandler">
+	        <!-- AbortPolicy:直接抛出java.util.concurrent.RejectedExecutionException异常 -->
+	        <!-- CallerRunsPolicy:主线程直接执行该任务，执行完之后尝试添加下一个任务到线程池中，可以有效降低向线程池内添加任务的速度 -->
+	        <!-- DiscardOldestPolicy:抛弃旧的任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+	        <!-- DiscardPolicy:抛弃当前任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+	        <bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />
+	    </property>
+	</bean>
+	<bean id="simpleThreadPoolTaskExecutor" class="org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor">
+	    <property name="makeThreadsDaemons" value="true"/>
+	    <property name="threadCount" value="5"/>
+	    <property name="threadNamePrefix" value="simpleThreadPoolTaskExecutor"/>
+	    <property name="waitForJobsToCompleteOnShutdown" value="true"/>
+	</bean>
+
+	<!-- <bean id="otherScheduler" class="com.fso.zerohelp.zerott.quartz.impl.SchedulerImpl">
+		<property name="jobDetails">
+			<list>
+				<ref local="InterruptableJobDemo" />
+				<ref local="SSQ_BJFC_Award" />
+			</list>
+		</property>
+		<property name="autoStartup"><value>true</value></property>
+		<property name="threadCount" value="100"></property>
+		<property name="schedulerName"><value>otherScheduler</value></property>
+		<property name="threadPoolType" value="2" />
+		<property name="taskExecutor" ref="simpleThreadPoolTaskExecutor" />
+	</bean> -->
+</beans>

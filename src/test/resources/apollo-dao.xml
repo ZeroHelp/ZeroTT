@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="apolloSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocations">
+			<list>
+				<value>classpath:com/fso/zerohelp/quartz/resources/timetask-sqlmap.xml</value>
+				<value>classpath:com/fso/zerohelp/quartz/resources/switch-sqlmap.xml</value>
+				<value>classpath:com/fso/zerohelp/quartz/resources/sms-sqlmap.xml</value>
+			</list>
+		</property>
+		<property name="dataSource">
+			<ref bean="quartzDataSource" />
+		</property>
+	</bean>
+	
+	<bean id="ttcontroltransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="quartzDataSource"/>
+	</bean>
+	<bean id="ttcontrolTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="ttcontroltransactionManager"/>
+    </bean>
+    
+	<bean id="timetaskDAO" class="com.fso.zerohelp.zerott.quartz.dao.impl.TimetaskDAOImpl">
+		<property name="sqlMapClient" ref="apolloSqlMap"></property>
+	</bean>
+	<bean id="switchDAO" class="com.fso.zerohelp.zerott.quartz.dao.impl.SwitchDAOImpl">
+		<property name="sqlMapClient" ref="apolloSqlMap"></property>
+	</bean>
+	<bean id="smsConfigDao" class="com.fso.zerohelp.zerott.quartz.dao.impl.SmsConfigDaoImpl" >
+		<property name="sqlMapClient" ref="apolloSqlMap"></property>
+	</bean>
+</beans>

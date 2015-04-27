@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <!-- ===================================================================== -->
+    <!--  以下是appender的定义                                                 -->
+    <!-- ===================================================================== -->
+    <appender name="IBATIS" class="org.apache.log4j.ConsoleAppender">
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%n%d [%X{loginUserNick}@%X{remoteAddr} - %X{method} %X{requestURIWithQueryString}] %nUserAgent: %X{userAgent}%nReferrer: %X{referrer}%n%-5p %c{2} - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- ===================================================================== -->
+    <!--  以下是logger的定义   additivity表明是否是要在root里面也出现                   -->
+    <!-- ===================================================================== -->
+     <logger name="com.ibatis" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="IBATIS"/>
+    </logger>
+    <logger name="java.sql" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="IBATIS"/>
+    </logger>
+    <logger name="cn.creditease.fso.apollo.utils.quartz" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="IBATIS"/>
+    </logger>
+
+    <!-- ===================================================================== -->
+    <!--  Root logger的定义                                                    -->
+    <!-- ===================================================================== -->
+    <root>
+        <level value="WARN"/>
+        <appender-ref ref="IBATIS" />
+    </root>
+</log4j:configuration>

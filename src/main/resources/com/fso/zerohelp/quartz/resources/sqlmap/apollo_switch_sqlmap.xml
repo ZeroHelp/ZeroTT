@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ApolloSwitch" >
+  <typeAlias alias="switchDO" type="com.fso.zerohelp.zerott.quartz.Switch" />
+  <resultMap id="switchResult" class="switchDO" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INT" />
+    <result column="category" property="category" jdbcType="VARCHAR"/>
+    <result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <select id="getSwitch" resultMap="switchResult" parameterClass="java.lang.String">
+  	<![CDATA[
+	select * from apollo_switch_control where id = #id#
+	]]>
+  </select>
+  
+  <select id="listAllSwitches" resultMap="switchResult">
+  	<![CDATA[
+	select * from apollo_switch_control
+	]]>
+  </select>
+  
+  <select id="getSwitchesPage" parameterClass="java.util.Map" resultMap="switchResult">
+  	select * from apollo_switch_control
+  	where category like '$category$'
+		<isNotNull property="status" prepend=" and ">status=#status#</isNotNull>
+  	limit #start#,#size#
+  </select>
+  
+  <select id="getSwitchesCount" resultClass="int" parameterClass="java.util.Map">
+  	select count(*) from apollo_switch_control
+  	where category like '$category$'
+		<isNotNull property="status" prepend=" and ">status=#status#</isNotNull>
+  </select>
+  
+  <select id="listSwitchesSince" resultMap="switchResult" parameterClass="java.util.Date">
+  	<![CDATA[
+	select * from apollo_switch_control where gmt_modified > #since#
+	]]>
+  </select>
+  
+  <update id="deleteSwitch" parameterClass="java.lang.String">
+	delete from apollo_switch_control WHERE id = #id#
+  </update>
+  
+  <update id="updateSwitch" parameterClass="switchDO">
+	update apollo_switch_control set gmt_modified = CURRENT_TIMESTAMP
+		<dynamic prepend=","><isNotNull property="status">status = #status#</isNotNull></dynamic>
+		<dynamic prepend=","><isNotNull property="name">name = #name#</isNotNull></dynamic>
+		<dynamic prepend=","><isNotNull property="category">category = #category#</isNotNull></dynamic>
+		WHERE id = #id#
+  </update>
+  
+  <insert id="insertSwitch" parameterClass="switchDO">
+	insert into apollo_switch_control(id, name, status,category, gmt_created, gmt_modified)
+	 values (#id#, #name#, #status#,#category#, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  </insert>
+
+</sqlMap>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ApolloTimetaskControl">
+	<typeAlias alias="quartzConfigDO" type="com.fso.zerohelp.zerott.quartz.TimetaskConfig" />
+	<resultMap id="quartzConfigResult" class="quartzConfigDO">
+		<result column="id" property="id" jdbcType="INT" />
+		<result column="taskid" property="taskId" jdbcType="VARCHAR" />
+		<result column="type" property="jobType" jdbcType="INT" />
+		<result column="cronexp" property="cronExpression" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="target_ip" property="targetIp" jdbcType="VARCHAR" />
+		<result column="magic" property="magic" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INT" />
+		<result column="category" property="category" jdbcType="VARCHAR" />
+		<result column="scheduler" property="scheduler" jdbcType="VARCHAR" />
+		<result column="last_target_ip" property="lastTargetIp"	jdbcType="VARCHAR" />
+		<result column="last_start_time" property="lastStartTime" jdbcType="TIMESTAMP" />
+		<result column="last_end_time" property="lastEndTime" jdbcType="TIMESTAMP" />
+		<result column="gmt_created" property="gmtCreated" jdbcType="TIMESTAMP" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+		<result column="priority" property="priority" jdbcType="INT" nullValue="0"/>
+        <result column="app_name" property="appName" />
+	</resultMap>
+
+	<sql id="timetaskConfigColumnAll">
+		id,
+		taskid,
+		type,
+		cronexp,
+		name,
+		target_ip,
+		magic,
+		status,
+		category,
+		scheduler,
+		last_target_ip,
+		last_start_time,
+		last_end_time,
+		gmt_created,
+		gmt_modified,
+		priority,
+		app_name
+  </sql>
+
+	<select id="listAllQuartzConfig" resultMap="quartzConfigResult" parameterClass="java.util.Map">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control
+		<dynamic prepend="where">
+			<isNotNull property="id" prepend="and ">id=#id#</isNotNull>
+			<isNotNull property="taskId" prepend=" and ">taskid=#taskId#</isNotNull>
+			<isNotNull property="ip" prepend="and ">target_ip=#ip#</isNotNull>
+			<isNotNull property="status" prepend="and ">
+				status in <iterate property="status" open="(" close=")" conjunction=",">#status[]#</iterate>
+			</isNotNull>
+			<isNotNull property="scheduler" prepend="and ">scheduler=#scheduler#</isNotNull>
+			<isNotNull property="appName" prepend="and ">app_name = #appName#</isNotNull>
+		</dynamic>
+	</select>
+
+	<select id="listAllSchedulerNames" resultClass="java.lang.String">
+		select distinct	scheduler from apollo_timetask_control order by scheduler
+    </select>
+
+	<select id="getCertainTimetask" resultMap="quartzConfigResult" parameterClass="java.util.Map">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control
+		<dynamic prepend=" WHERE ">
+			<isNotNull property="category" prepend=" and ">category like CONCAT(#category#, '%')</isNotNull>
+			<isNotNull property="ip" prepend=" and ">target_ip=#ip#</isNotNull>
+			<isNotNull property="taskId" prepend=" and ">taskid=#taskId#</isNotNull>
+			<isNotNull property="scheduler" prepend=" and ">scheduler=#scheduler#</isNotNull>
+			<isNotNull property="status" prepend=" and ">
+				status in <iterate property="status" open="(" close=")" conjunction=",">#status[]#</iterate>
+			</isNotNull>
+			<isNotNull property="priority" prepend=" and ">priority=#priority#</isNotNull>
+            <isNotNull property="appName" prepend=" and ">app_name = #appName#</isNotNull>
+		</dynamic>
+		limit #start#,#size#
+	</select>
+
+	<select id="getTimetaskSumCount" resultClass="int" parameterClass="java.util.Map">
+		select count(*) from apollo_timetask_control
+		<dynamic prepend=" WHERE ">
+			<isNotNull property="category" prepend=" and ">category like CONCAT(#category#, '%')</isNotNull>
+			<isNotNull property="ip" prepend=" and ">target_ip=#ip#</isNotNull>
+			<isNotNull property="taskId" prepend=" and ">taskid=#taskId#</isNotNull>
+			<isNotNull property="scheduler" prepend=" and ">scheduler=#scheduler#</isNotNull>
+			<isNotNull property="status" prepend=" and ">
+				status in <iterate property="status" open="(" close=")" conjunction=",">#status[]#</iterate>
+			</isNotNull>
+			<isNotNull property="priority" prepend=" and ">priority=#priority#</isNotNull>
+            <isNotNull property="appName" prepend=" and ">app_name = #appName#</isNotNull>
+		</dynamic>
+	</select>
+
+	<select id="listConfigSince" resultMap="quartzConfigResult" parameterClass="java.util.Map">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where gmt_modified > #since#
+		<isNotNull property="scheduler" prepend=" and ">scheduler=#scheduler#</isNotNull>
+	</select>
+
+	<select id="listConfigByIp" resultMap="quartzConfigResult" parameterClass="java.lang.String">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where target_ip = #ip#
+	</select>
+
+	<select id="listConfigByTaskidIp" resultMap="quartzConfigResult" parameterClass="java.util.Map">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where taskid = #taskId# and target_ip = #ip#
+	</select>
+
+	<select id="listConfigByTaskId" resultMap="quartzConfigResult" parameterClass="java.lang.String">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where taskid = #taskId#
+	</select>
+
+	<select id="listConfigById" resultMap="quartzConfigResult" parameterClass="java.lang.Integer">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where id = #value#
+	</select>
+
+	<select id="listConfigByIdForUpdate" resultMap="quartzConfigResult"	parameterClass="java.lang.Integer">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where id = #value# for update
+	</select>
+
+	<select id="listConfigByTaskidAndIp" resultMap="quartzConfigResult" parameterClass="java.util.HashMap">
+		select
+		<include refid="timetaskConfigColumnAll" />
+		from apollo_timetask_control where taskid = #taskId# and target_ip = #targetIp#
+	</select>
+
+	<update id="updateLastStatus" parameterClass="java.util.Map">
+		update apollo_timetask_control set gmt_modified = gmt_modified
+		<dynamic prepend=",">
+			<isNotNull property="lastTargetIp">last_target_ip = #lastTargetIp#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="lastStartTime">last_start_time = #lastStartTime#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="lastEndTime">last_end_time = #lastEndTime#</isNotNull>
+		</dynamic>
+		WHERE id = #id#
+	</update>
+	<update id="batchReplaceIP" parameterClass="java.util.Map">
+		update apollo_timetask_control set target_ip=#dstIP#,gmt_modified=now() where target_ip=#srcIP#
+	</update>
+	<update id="batchReplaceIpByIdlist" parameterClass="java.util.Map">
+		update apollo_timetask_control set target_ip=#dstIP#,gmt_modified=now() where
+			id in <iterate property="idlist" open="(" close=")" conjunction=",">#idlist[]#</iterate>;
+	</update>
+	<update id="updateConfig" parameterClass="quartzConfigDO">
+		update apollo_timetask_control set gmt_modified = now()
+		<dynamic prepend=",">
+			<isNotNull property="status">status = #status#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="category">category = #category#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="cronExpression">cronexp = #cronExpression#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="scheduler">scheduler = #scheduler#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="name">name = #name#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="targetIp">target_ip = #targetIp#</isNotNull>
+		</dynamic>
+		<dynamic prepend=",">
+			<isNotNull property="magic">magic = #magic#</isNotNull>
+		</dynamic>
+        <dynamic prepend=",">
+            <isNotNull property="appName">app_name = #appName#</isNotNull>
+        </dynamic>
+		WHERE id = #id#
+	</update>
+
+	<update id="updateTimetaskStatus" parameterClass="java.util.HashMap">
+		update apollo_timetask_control set gmt_modified =	now(),status=#status# where id=#id#
+  </update>
+
+	<update id="deleteConfigByID" parameterClass="java.lang.Integer">
+		delete from apollo_timetask_control WHERE id = #id#
+  </update>
+
+	<insert id="insertConfig" parameterClass="quartzConfigDO">
+		insert into
+		apollo_timetask_control(
+		taskid,
+		type,
+		cronexp,
+		name,
+		target_ip,
+		magic,
+		status,
+		category,
+		scheduler,
+		last_start_time,
+		last_end_time,
+        app_name,
+		gmt_created,
+		gmt_modified
+		)
+		values
+		(#taskId#, #jobType#, #cronExpression#, #name#,
+		#targetIp#, #magic#, #status#,
+		#category#, #scheduler#,
+		now(), now(),
+		#appName#,
+		now(),
+		now())
+  </insert>
+
+  <update id="switchHighRisk" parameterClass="java.util.HashMap">
+		update apollo_timetask_control set gmt_modified = now(), priority=#priority# where id=#taskId#
+  </update>
+</sqlMap>
