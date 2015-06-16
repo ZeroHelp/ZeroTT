@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fso.zerohelp.zerott.quartz.MemoryCache;
 import com.fso.zerohelp.zerott.quartz.Switch;
 import com.fso.zerohelp.zerott.quartz.Synchronizer;
-
+//commit gengxin
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/lottery-spring.xml" })
 public class SwitchSynchronizerTest extends org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests {
