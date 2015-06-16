@@ -20,7 +20,7 @@ import com.fso.zerohelp.zerott.quartz.dao.SwitchDAO;
 import com.fso.zerohelp.zerott.quartz.dao.impl.SwitchDAOImpl;
 import com.fso.zerohelp.zerott.quartz.enumeration.SwitchStatus;
 import com.ibatis.sqlmap.client.SqlMapClient;
-
+//test
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/lottery-spring.xml" })
 public class SwitchDaoTest  extends org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests {
