@@ -53,7 +53,6 @@ public class TimetaskSynchronizerTest extends org.springframework.test.context.j
 		}
 	}
 	
-	@Test
 	public void stopScheduler(){
 		/*this.applicationContext.getBean("quartzTimetaskSynchronizer");
 		this.applicationContext.getBean("mainScheduler");*/
